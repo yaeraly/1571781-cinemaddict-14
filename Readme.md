@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Эралы Токтоназаров](https://up.htmlacademy.ru/ecmascript/14/user/1571781).
-* Наставник: `Неизвестно`.
+* Наставник: [Максим Волков](https://up.htmlacademy.ru/ecmascript/14/user/1508839).
 
 ---
 
