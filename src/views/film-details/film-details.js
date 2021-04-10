@@ -8,7 +8,7 @@ const createGenresTemplate = (genres) => {
 };
 
 
-export const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
+export const createFilmDetailTemplate = ({ comments, film_info, user_details }, userComments) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
   const { date, release_country } = release;
 
@@ -21,7 +21,7 @@ export const createFilmDetailTemplate = ({ comments, film_info, user_details }) 
   const duration            = `${runtime.$d.hours}h ${runtime.$d.minutes}m`;
 
   const userDetailsTemplate = createUserDetailsTemplate(user_details);
-  const commentsTemplate    = createCommentsTemplate(comments);
+  const commentsTemplate    = createCommentsTemplate(comments, userComments);
   const newCommentTemplate  = createNewCommentTemplate();
 
 

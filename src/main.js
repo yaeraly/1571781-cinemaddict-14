@@ -8,7 +8,7 @@ import { createShowMoreButtonTemplate } from './views/show-more-button.js';
 import { createFilmFooterStatisticTemplate } from './views/film-footer-statistic.js';
 import { generateFilm } from './mock/film.js';
 import { generateFilter } from './mock/filter.js';
-// import { generateFilter } from './mock/filter.js';
+import { comments } from './models/comments.js';
 
 import { createFilmDetailTemplate } from './views/film-details/film-details.js';
 
@@ -23,8 +23,8 @@ const mainContainer   = document.querySelector('main');
 const footerContainer = document.querySelector('footer');
 const footerStatistic = footerContainer.querySelector('.footer__statistics');
 
-const filmNameElements  = mainContainer.querySelectorAll('.film-card__title');
-const commentsElements  = mainContainer.querySelectorAll('.film-card__comments');
+// const filmNameElements  = mainContainer.querySelectorAll('.film-card__title');
+// const commentsElements  = mainContainer.querySelectorAll('.film-card__comments');
 
 
 render(headerContainer, 'beforeend', createUserProfileTemplate());
@@ -37,7 +37,7 @@ const filmListContainer = mainContainer.querySelector('.films-list__container');
 
 const createEventListener = (element, film) => {
   const addClickPosterHandler = () => {
-    render(footerContainer, 'afterend', createFilmDetailTemplate(film));
+    render(footerContainer, 'afterend', createFilmDetailTemplate(film, comments));
     const popupContainer    = document.querySelector('.film-details');
     const closePopupButton  = popupContainer.querySelector('.film-details__close-btn');
 

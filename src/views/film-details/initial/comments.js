@@ -1,20 +1,16 @@
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
-const createCommentTemplate = () => {
-  let author;
-  let comment;
-  let commentDate;
-  let emotion;
+const createCommentTemplate = (id, userComments) => {
+  let userComment;
+  for(const comment of userComments) {
+    if(comment.id === id) {
+      userComment = comment;
+    }
+  }
+  const { author, comment, date, emotion } = userComment;
 
-  // for (let i = 0; comments.length; i++){
-  //   if(comments[i].id === id) {
-  //     author = comments[i].author;
-  //     comment = comments[i].comment;
-  //     commentDate = dayjs(comments[i].date).format('YYYY/MM/DD HH:mm');
-  //     emotion = comments[i].emotion;
-  //     break;
-  //   }
-  // }
+  const commentDate = dayjs(date).format('YYYY/MM/DD HH:mm');
+
 
   return `
     <li class="film-details__comment">
@@ -33,10 +29,10 @@ const createCommentTemplate = () => {
   `;
 };
 
-export const createCommentsTemplate = (comments) => {
+export const createCommentsTemplate = (comments, userComments) => {
   return `
     <ul class="film-details__comments-list">
-      ${comments.map((id) => createCommentTemplate(id)).join('')}
+      ${comments.map((id) => createCommentTemplate(id, userComments)).join('')}
     </ul>
   `;
 };
