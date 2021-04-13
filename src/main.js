@@ -10,10 +10,8 @@ import FilmView from './views/films/film.js';
 import FilmListView from './views/films/film-list.js';
 import FilmListContainerView from './views/films/film-list-container.js';
 import NoFilmListView from './views/films/no-film.js';
-import FilmDetailView from './views/film-details/film-details.js';
 import CardView from './views/card.js';
 import ShowMoreButtonView from './views/show-more-button.js';
-
 import FooterStatisticView from './views/footer-statistic.js';
 
 const FILM_COUNT = 10;
@@ -26,71 +24,37 @@ const siteBody          = document.body;
 const siteHeaderElement = siteBody.querySelector('.header');
 const siteMainElement   = siteBody.querySelector('.main');
 const siteFooterElement = siteBody.querySelector('.footer');
+const footerStatElement = siteFooterElement.querySelector('.footer__statistics');
+
+const userProfileComponent  = new UserProfileView();
+const filterComponent       = new FilterView(filter);
+const sortComponent         = new SortView();
+const filmComponent         = new FilmView();
+const filmListComponent     = new FilmListView();
+const filmListContainer     = new FilmListContainerView();
+const noFilmListComponent   = new NoFilmListView();
+const footerStatComponent   = new FooterStatisticView(FILM_COUNT);
+
+render(siteHeaderElement, userProfileComponent.getElement(), RenderPosition.BEFOREEND);
+render(siteMainElement, filterComponent.getElement(), RenderPosition.BEFOREEND);
+render(siteMainElement, sortComponent.getElement(), RenderPosition.BEFOREEND);
+render(siteMainElement, filmComponent.getElement(), RenderPosition.BEFOREEND);
+render(filmComponent.getElement(), filmListComponent.getElement(), RenderPosition.BEFOREEND);
+render(footerStatElement, footerStatComponent.getElement(), RenderPosition.BEFOREEND);
 
 
-const renderFilmDetail = (film) => {
-  siteBody.classList.toggle('hide-overflow');
-  const filmDetailPopupElement = new FilmDetailView(film).getElement();
-  siteMainElement.appendChild(filmDetailPopupElement);
-  const closePopupButton = filmDetailPopupElement.querySelector('.film-details__close-btn');
-
-  const addClosePopupButtonHandler = () => {
-    siteMainElement.removeChild(filmDetailPopupElement);
-    closePopupButton.removeEventListener('click', addClosePopupButtonHandler);
-    document.removeEventListener('keydown', onEscKeyDown);
-    siteBody.classList.toggle('hide-overflow');
-  };
-
-  const onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      addClosePopupButtonHandler();
-    }
-  };
-
-  document.addEventListener('keydown', onEscKeyDown);
-  closePopupButton.addEventListener('click', addClosePopupButtonHandler);
-};
-
-const renderFilm = (filmContainer, film) => {
-  const cardComponent = new CardView(film);
-
-  const addClickPosterHandler = () => {
-    renderFilmDetail(film);
-  };
-
-  cardComponent.getElement().querySelector('.film-card__poster').addEventListener('click', addClickPosterHandler);
-  cardComponent.getElement().querySelector('.film-card__title').addEventListener('click', addClickPosterHandler);
-  cardComponent.getElement().querySelector('.film-card__comments').addEventListener('click', addClickPosterHandler);
-
-  render(filmContainer, cardComponent.getElement(), RenderPosition.BEFOREEND);
-};
-
-const renderFilms = (films, filter) => {
-  const filmFilter = new FilterView(filter);
-  const filmComponent = new FilmView();
-  const filmListComponent = new FilmListView();
-  const filmListContainerComponent = new FilmListContainerView();
-  const userProfileComponent = new UserProfileView();
-  const filmSortComponent = new SortView();
-
-  render(siteMainElement, filmFilter.getElement(), RenderPosition.BEFOREEND);
-  render(siteMainElement, filmSortComponent.getElement(), RenderPosition.BEFOREEND);
-  render(siteMainElement, filmComponent.getElement(), RenderPosition.BEFOREEND);
-
+const renderFilms = (films) => {
   if (films.length === 0) {
-    render(filmComponent.getElement(), new NoFilmListView().getElement(), RenderPosition.AFTERBEGIN);
-    filmSortComponent.getElement().remove();
+    render(filmComponent.getElement(), noFilmListComponent.getElement(), RenderPosition.AFTERBEGIN);
+    sortComponent.getElement().remove();
     return;
   }
 
-  render(siteHeaderElement, userProfileComponent.getElement(), RenderPosition.BEFOREEND);
-  render(filmComponent.getElement(), filmListComponent.getElement(), RenderPosition.BEFOREEND);
-  render(filmListComponent.getElement(), filmListContainerComponent.getElement(), RenderPosition.BEFOREEND);
+  render(filmListComponent.getElement(), filmListContainer.getElement(), RenderPosition.BEFOREEND);
 
   films
     .slice(0, Math.min(films.length, FILM_COUNT_PER_STEP))
-    .forEach((film) => renderFilm(filmListContainerComponent.getElement(), film));
+    .forEach((film) => new CardView(film).render());
 
   if (films.length > FILM_COUNT_PER_STEP) {
     let renderedFilmCount = FILM_COUNT_PER_STEP;
@@ -100,29 +64,22 @@ const renderFilms = (films, filter) => {
 
     render(filmListComponent.getElement(), showMoreButtonElement, RenderPosition.BEFOREEND);
 
-    const addShowMoreButtonElementHandler = (evt) => {
+    const showMoreFilms = (evt) => {
       evt.preventDefault();
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
-        .forEach((film) => renderFilm(filmListContainerComponent.getElement(), film));
+        .forEach((film) => new CardView(film).render());
 
       renderedFilmCount += FILM_COUNT_PER_STEP;
 
       if (renderedFilmCount >= films.length) {
-        showMoreButtonElement.removeEventListener('click', addShowMoreButtonElementHandler);
+        showMoreButtonElement.removeEventListener('click', showMoreFilms);
         showMoreButtonElement.remove();
-        showMoreButtonComponent.removeElement();
       }
     };
 
-    showMoreButtonElement.addEventListener('click', addShowMoreButtonElementHandler);
+    showMoreButtonElement.addEventListener('click', showMoreFilms);
   }
 };
 
-const renderFooterStatistic = (filmCount) => {
-  const footerStatisticContainerElement = siteFooterElement.querySelector('.footer__statistics');
-  render(footerStatisticContainerElement, new FooterStatisticView(filmCount).getElement(), RenderPosition.BEFOREEND);
-};
-
-renderFilms(films, filter);
-renderFooterStatistic(FILM_COUNT);
+renderFilms(films);
