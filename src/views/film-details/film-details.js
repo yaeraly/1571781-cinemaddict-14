@@ -92,23 +92,44 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
               </p>
             </div>
           </div>
-
           ${ filmControlTemplate }
-
         </div>
-
         <div class="film-details__bottom-container">
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${ numOfComments }</span></h3>
-
             ${ commentsTemplate }
-
             ${ newCommentTemplate }
-
           </section>
         </div>
       </form>
     </section>`;
+};
+
+const renderFilmDetail = (film, template) => {
+  const siteBody = document.body;
+  const siteMainElement = siteBody.querySelector('.main');
+
+  siteBody.classList.add('hide-overflow');
+  const filmDetailPopupElement = template;
+  siteMainElement.appendChild(filmDetailPopupElement);
+  const closePopupButton = filmDetailPopupElement.querySelector('.film-details__close-btn');
+
+  const сlosePopup = () => {
+    siteMainElement.removeChild(filmDetailPopupElement);
+    closePopupButton.removeEventListener('click', сlosePopup);
+    document.removeEventListener('keydown', onEscKeyDown);
+    siteBody.classList.remove('hide-overflow');
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      сlosePopup();
+    }
+  };
+
+  document.addEventListener('keydown', onEscKeyDown);
+  closePopupButton.addEventListener('click', сlosePopup);
 };
 
 export default class FilmDetail {
@@ -131,5 +152,9 @@ export default class FilmDetail {
 
   removeElement() {
     this._element = null;
+  }
+
+  render() {
+    return renderFilmDetail(this._film, this.getElement());
   }
 }

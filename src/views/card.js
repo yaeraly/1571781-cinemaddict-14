@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
-import { createElement } from '../util.js';
+import { createElement, render, RenderPosition } from '../util.js';
 import { validateStringMaxLength } from '../util.js';
+import FilmDetailView from './film-details/film-details.js';
 
-export const createCardTemplate = ({ comments, film_info, user_details }) => {
+const createCardTemplate = ({ comments, film_info, user_details }) => {
   const { title, total_rating, poster, release, runtime, genre, description} = film_info;
   const { watchlist, already_watched, favorite } = user_details;
   const { date } = release;
@@ -36,6 +37,21 @@ export const createCardTemplate = ({ comments, film_info, user_details }) => {
     </article>`;
 };
 
+const renderFilm = (film, template) => {
+  const cardComponent = template;
+  const filmContainer = document.querySelector('.films-list__container');
+
+  const showPopup = () => {
+    new FilmDetailView(film).render();
+  };
+
+  cardComponent.querySelector('.film-card__poster').addEventListener('click', showPopup);
+  cardComponent.querySelector('.film-card__title').addEventListener('click', showPopup);
+  cardComponent.querySelector('.film-card__comments').addEventListener('click', showPopup);
+
+  render(filmContainer, cardComponent, RenderPosition.BEFOREEND);
+};
+
 export default class Card {
   constructor(film) {
     this._film = film;
@@ -56,5 +72,9 @@ export default class Card {
 
   removeElement() {
     this._element = null;
+  }
+
+  render() {
+    return renderFilm(this._film, this.getElement());
   }
 }
