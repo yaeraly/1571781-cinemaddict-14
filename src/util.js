@@ -1,6 +1,29 @@
 import dayjs  from 'dayjs';
 
-const render = (container, place, template) => {
+const RenderPosition = {
+  AFTERBEGIN: 'afterbegin',
+  BEFOREEND: 'beforeend',
+};
+
+const render = (container, element, place) => {
+  switch (place) {
+    case RenderPosition.AFTERBEGIN:
+      container.prepend(element);
+      break;
+    case RenderPosition.BEFOREEND:
+      container.append(element);
+      break;
+  }
+};
+
+const createElement = (template) => {
+  const newElement = document.createElement('div');
+  newElement.innerHTML = template;
+
+  return newElement.firstChild;
+};
+
+const renderTemplate = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
@@ -12,11 +35,9 @@ const getRandomInteger = (a = 0, b = 1) => {
 };
 
 const generateRandomDate = () => {
-  const year = getRandomInteger(1, 60);
-  const month = getRandomInteger(1, 12);
-  const day = getRandomInteger(1, 28);
+  const day = getRandomInteger(360, 60*365);
 
-  return dayjs().add(-year, 'year').add(month, 'month').add(day, 'day').toDate();
+  return dayjs().add(-day, 'day').toDate();
 };
 
 const getRandomArrayElement = (arr) => {
@@ -30,7 +51,10 @@ const validateStringMaxLength = (string, maxLength = 140) => {
 };
 
 export {
+  RenderPosition,
   render,
+  createElement,
+  renderTemplate,
   getRandomInteger,
   generateRandomDate,
   getRandomArrayElement,

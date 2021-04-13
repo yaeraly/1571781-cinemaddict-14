@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
+import { createElement } from '../util.js';
 import { validateStringMaxLength } from '../util.js';
 
-export const createFilmCardTemplate = ({ comments, film_info, user_details }) => {
+export const createCardTemplate = ({ comments, film_info, user_details }) => {
   const { title, total_rating, poster, release, runtime, genre, description} = film_info;
   const { watchlist, already_watched, favorite } = user_details;
   const { date } = release;
@@ -16,8 +17,7 @@ export const createFilmCardTemplate = ({ comments, film_info, user_details }) =>
   const shortDescription    = validateStringMaxLength(description) ? description.slice(0, 139) + '...' : description;
 
 
-  return `
-    <article class="film-card">
+  return `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
       <p class="film-card__rating">${total_rating}</p>
       <p class="film-card__info">
@@ -33,6 +33,28 @@ export const createFilmCardTemplate = ({ comments, film_info, user_details }) =>
         <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${watchedClassName}" type="button">Mark as watched</button>
         <button class="film-card__controls-item button film-card__controls-item--favorite ${favoriteClassName}" type="button">Mark as favorite</button>
       </div>
-    </article>
-  `;
+    </article>`;
 };
+
+export default class Card {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createCardTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

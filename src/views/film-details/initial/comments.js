@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
+import { createElement } from '../../../util.js';
+import { comments } from '../../../models/comments.js';
 
-const createCommentTemplate = (id, userComments) => {
+const createCommentTemplate = (id) => {
   let userComment;
-  for(const comment of userComments) {
+  for(const comment of comments) {
     if(comment.id === id) {
       userComment = comment;
     }
@@ -12,8 +14,7 @@ const createCommentTemplate = (id, userComments) => {
   const commentDate = dayjs(date).format('YYYY/MM/DD HH:mm');
 
 
-  return `
-    <li class="film-details__comment">
+  return `<li class="film-details__comment">
       <span class="film-details__comment-emoji">
         <img src="${ emotion }" width="55" height="55" alt="emoji-smile">
       </span>
@@ -25,14 +26,35 @@ const createCommentTemplate = (id, userComments) => {
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>
-    </li>
-  `;
+    </li>`;
 };
 
-export const createCommentsTemplate = (comments, userComments) => {
-  return `
-    <ul class="film-details__comments-list">
-      ${comments.map((id) => createCommentTemplate(id, userComments)).join('')}
-    </ul>
-  `;
+const createCommentsTemplate = (comments) => {
+  return `<ul class="film-details__comments-list">
+      ${comments.map((id) => createCommentTemplate(id)).join('')}
+    </ul>`;
 };
+
+
+export default class Comment {
+  constructor(comments) {
+    this._element = null;
+    this._comments = comments;
+  }
+
+  getTemplate() {
+    return createCommentsTemplate(this._comments);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
