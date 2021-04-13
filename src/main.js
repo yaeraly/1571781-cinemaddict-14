@@ -26,30 +26,31 @@ const siteBody          = document.body;
 const siteHeaderElement = siteBody.querySelector('.header');
 const siteMainElement   = siteBody.querySelector('.main');
 const siteFooterElement = siteBody.querySelector('.footer');
+const footerStatElement = siteFooterElement.querySelector('.footer__statistics');
 
 
 const renderFilmDetail = (film) => {
-  siteBody.classList.toggle('hide-overflow');
+  siteBody.classList.add('hide-overflow');
   const filmDetailPopupElement = new FilmDetailView(film).getElement();
   siteMainElement.appendChild(filmDetailPopupElement);
   const closePopupButton = filmDetailPopupElement.querySelector('.film-details__close-btn');
 
-  const addClosePopupButtonHandler = () => {
+  const сlosePopup = () => {
     siteMainElement.removeChild(filmDetailPopupElement);
-    closePopupButton.removeEventListener('click', addClosePopupButtonHandler);
+    closePopupButton.removeEventListener('click', сlosePopup);
     document.removeEventListener('keydown', onEscKeyDown);
-    siteBody.classList.toggle('hide-overflow');
+    siteBody.classList.remove('hide-overflow');
   };
 
   const onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      addClosePopupButtonHandler();
+      сlosePopup();
     }
   };
 
   document.addEventListener('keydown', onEscKeyDown);
-  closePopupButton.addEventListener('click', addClosePopupButtonHandler);
+  closePopupButton.addEventListener('click', сlosePopup);
 };
 
 const renderFilm = (filmContainer, film) => {
@@ -100,7 +101,7 @@ const renderFilms = (films, filter) => {
 
     render(filmListComponent.getElement(), showMoreButtonElement, RenderPosition.BEFOREEND);
 
-    const addShowMoreButtonElementHandler = (evt) => {
+    const showMoreFilms = (evt) => {
       evt.preventDefault();
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
@@ -109,20 +110,16 @@ const renderFilms = (films, filter) => {
       renderedFilmCount += FILM_COUNT_PER_STEP;
 
       if (renderedFilmCount >= films.length) {
-        showMoreButtonElement.removeEventListener('click', addShowMoreButtonElementHandler);
+        showMoreButtonElement.removeEventListener('click', showMoreFilms);
         showMoreButtonElement.remove();
         showMoreButtonComponent.removeElement();
       }
     };
 
-    showMoreButtonElement.addEventListener('click', addShowMoreButtonElementHandler);
+    showMoreButtonElement.addEventListener('click', showMoreFilms);
   }
 };
 
-const renderFooterStatistic = (filmCount) => {
-  const footerStatisticContainerElement = siteFooterElement.querySelector('.footer__statistics');
-  render(footerStatisticContainerElement, new FooterStatisticView(filmCount).getElement(), RenderPosition.BEFOREEND);
-};
+render(footerStatElement, new FooterStatisticView(FILM_COUNT).getElement(), RenderPosition.BEFOREEND);
 
 renderFilms(films, filter);
-renderFooterStatistic(FILM_COUNT);
