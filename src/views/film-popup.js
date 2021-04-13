@@ -1,3 +1,5 @@
+import { createElement } from '../util.js';
+
 const createPopupAddCommentTemplate = () => {
   return `
     <section class="film-details">
@@ -119,4 +121,24 @@ const createPopupAddCommentTemplate = () => {
   `;
 };
 
-export { createPopupAddCommentTemplate };
+export default class Popup {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createPopupAddCommentTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

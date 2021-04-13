@@ -1,5 +1,10 @@
 import dayjs from 'dayjs';
-import { createCommentsTemplate, createUserDetailsTemplate, createNewCommentTemplate } from './initial';
+import { createElement } from '../../util.js';
+
+import CommentView from './initial/comments.js';
+import FilmControlView from './initial/film-control.js';
+import NewCommentView from './initial/new-comment.js';
+
 
 const createGenresTemplate = (genres) => {
   return genres.map((genre) => `
@@ -8,7 +13,7 @@ const createGenresTemplate = (genres) => {
 };
 
 
-export const createFilmDetailTemplate = ({ comments, film_info, user_details }, userComments) => {
+const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
   const { date, release_country } = release;
 
@@ -20,13 +25,12 @@ export const createFilmDetailTemplate = ({ comments, film_info, user_details }, 
   const releaseDate         = dayjs(date).format('DD MMMM YYYY');
   const duration            = `${runtime.$d.hours}h ${runtime.$d.minutes}m`;
 
-  const userDetailsTemplate = createUserDetailsTemplate(user_details);
-  const commentsTemplate    = createCommentsTemplate(comments, userComments);
-  const newCommentTemplate  = createNewCommentTemplate();
+  const filmControlTemplate = new FilmControlView(user_details).getTemplate();
+  const commentsTemplate    = new CommentView(comments).getTemplate();
+  const newCommentTemplate  = new NewCommentView().getTemplate();
 
 
-  return `
-    <section class="film-details">
+  return `<section class="film-details">
       <form class="film-details__inner" action="" method="get">
         <div class="film-details__top-container">
           <div class="film-details__close">
@@ -89,7 +93,7 @@ export const createFilmDetailTemplate = ({ comments, film_info, user_details }, 
             </div>
           </div>
 
-          ${ userDetailsTemplate }
+          ${ filmControlTemplate }
 
         </div>
 
@@ -104,6 +108,28 @@ export const createFilmDetailTemplate = ({ comments, film_info, user_details }, 
           </section>
         </div>
       </form>
-    </section>
-  `;
+    </section>`;
 };
+
+export default class FilmDetail {
+  constructor(film) {
+    this._element = null;
+    this._film = film;
+  }
+
+  getTemplate() {
+    return createFilmDetailTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
