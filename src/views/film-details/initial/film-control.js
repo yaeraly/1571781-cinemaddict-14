@@ -1,4 +1,4 @@
-import { createElement } from '../../../util.js';
+import AbstractView from '../../abstract.js';
 
 const createFilmControlTemplate = ({ watchlist, already_watched, favorite }) => {
 
@@ -19,25 +19,13 @@ const createFilmControlTemplate = ({ watchlist, already_watched, favorite }) => 
 };
 
 
-export default class FilmControl {
+export default class FilmControl extends AbstractView {
   constructor(filmDetail) {
-    this._element = null;
+    super();
     this._filmDetail = filmDetail;
   }
 
   getTemplate() {
     return createFilmControlTemplate(this._filmDetail);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

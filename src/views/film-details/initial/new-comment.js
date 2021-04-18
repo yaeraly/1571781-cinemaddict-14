@@ -1,8 +1,7 @@
-import { createElement } from '../../../util.js';
+import AbstractView from '../../abstract.js';
 
 const createNewCommentTemplate = () => {
-  return `
-    <div class="film-details__new-comment">
+  return `<div class="film-details__new-comment">
       <div class="film-details__add-emoji-label">
         <img src="images/emoji/smile.png" width="55" height="55" alt="emoji-smile">
       </div>
@@ -32,28 +31,11 @@ const createNewCommentTemplate = () => {
           <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
         </label>
       </div>
-    </div>
-  `;
+    </div>`;
 };
 
-export default class NewComment {
-  constructor() {
-    this._element = null;
-  }
-
+export default class NewComment extends AbstractView {
   getTemplate() {
     return createNewCommentTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
