@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { generateComment } from './comment.js';
-import { getRandomInteger, generateRandomDate, getRandomArrayElement } from '../util.js';
+import { getRandomInteger, generateRandomDate, getRandomArrayElement } from '../utils/common.js';
 import { FILM_NAMES, POSTERS, DIRECTORS, WRITERS, ACTORS, COUNTRIES, GENRES, AGE_LIMITS, DUMMY_TEXT } from '../const.js';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);

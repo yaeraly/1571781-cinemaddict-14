@@ -1,17 +1,16 @@
 import dayjs from 'dayjs';
-import { createElement } from '../../util.js';
 
 import CommentView from './initial/comments.js';
 import FilmControlView from './initial/film-control.js';
 import NewCommentView from './initial/new-comment.js';
 
+import AbstractView from '../abstract.js';
 
 const createGenresTemplate = (genres) => {
   return genres.map((genre) => `
     <span class="film-details__genre">${genre}</span>
     `).join('');
 };
-
 
 const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
@@ -105,56 +104,38 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
     </section>`;
 };
 
-const renderFilmDetail = (film, template) => {
-  const siteBody = document.body;
-  const siteMainElement = siteBody.querySelector('.main');
-
-  siteBody.classList.add('hide-overflow');
-  const filmDetailPopupElement = template;
-  siteMainElement.appendChild(filmDetailPopupElement);
-  const closePopupButton = filmDetailPopupElement.querySelector('.film-details__close-btn');
-
-  const сlosePopup = () => {
-    siteMainElement.removeChild(filmDetailPopupElement);
-    closePopupButton.removeEventListener('click', сlosePopup);
-    document.removeEventListener('keydown', onEscKeyDown);
-    siteBody.classList.remove('hide-overflow');
-  };
-
-  const onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      сlosePopup();
-    }
-  };
-
-  document.addEventListener('keydown', onEscKeyDown);
-  closePopupButton.addEventListener('click', сlosePopup);
-};
-
-export default class FilmDetail {
+export default class FilmDetail extends AbstractView {
   constructor(film) {
-    this._element = null;
+    super();
     this._film = film;
+    this._clickHandler = this._clickHandler.bind(this);
+    this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
   getTemplate() {
     return createFilmDetailTemplate(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
+  _clickHandler(evt) {
+    evt.preventDefault();
+    this._callback.clickPoster();
+  }
+
+  _onEscKeyDown(evt) {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this._callback.clickPoster();
     }
-
-    return this._element;
   }
 
-  removeElement() {
-    this._element = null;
+  setClickHandler(callback) {
+    this._callback.clickPoster = callback;
+    document.addEventListener('keydown', this._onEscKeyDown);
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._clickHandler);
   }
 
-  render() {
-    return renderFilmDetail(this._film, this.getElement());
+  removeClickHandler() {
+    this.getElement().querySelector('.film-details__close-btn').removeEventListener('click', this._clickHandler);
+    document.removeEventListener('keydown', this._onEscKeyDown);
   }
 }

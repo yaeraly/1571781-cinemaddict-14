@@ -1,29 +1,20 @@
-import { createElement } from '../../util.js';
+import AbstractView from '../abstract.js';
 
-const createFilmsListTemplate = () => {
+const createFilmsListTemplate = (isFilmAvailable) => {
+  const visuallyHiddenClassName = isFilmAvailable ? 'visually-hidden' : '';
+  const titleText = isFilmAvailable ? 'All movies. Upcoming' : 'There are no movies in our database';
+
   return `<section class="films-list">
-      <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
+      <h2 class="films-list__title ${ visuallyHiddenClassName }">${ titleText }</h2>
     </section>`;
 };
 
-export default class FilmList {
-  constructor() {
-    this._element = null;
+export default class FilmList extends AbstractView {
+  constructor(isFilmAvailable) {
+    super();
+    this._isFilmAvailable = isFilmAvailable;
   }
-
   getTemplate() {
-    return createFilmsListTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+    return createFilmsListTemplate(this._isFilmAvailable);
   }
 }

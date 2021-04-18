@@ -1,5 +1,5 @@
 import { EMOJIS, COMMENT_AUTHORS, COMMENTS } from '../const.js';
-import { generateRandomDate, getRandomArrayElement } from '../util.js';
+import { generateRandomDate, getRandomArrayElement } from '../utils/common.js';
 import { comments } from '../models/comments.js';
 
 
