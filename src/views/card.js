@@ -41,7 +41,10 @@ export default class Card extends AbstractView {
   constructor(film) {
     super();
     this._film = film;
-    this._clickHandler = this._clickHandler.bind(this);
+    this._clickHandler                = this._clickHandler.bind(this);
+    this._clickWatchlistClickHandler  = this._clickWatchlistClickHandler.bind(this);
+    this._clickWatchedClickHandler    = this._clickWatchedClickHandler.bind(this);
+    this._clickFavoriteClickHandler   = this._clickFavoriteClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -53,10 +56,40 @@ export default class Card extends AbstractView {
     this._callback.clickPoster();
   }
 
+  _clickWatchlistClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.clickWatchlist();
+  }
+
+  _clickWatchedClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.clickWatched();
+  }
+
+  _clickFavoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.clickFavorite();
+  }
+
   setClickHandler(callback) {
     this._callback.clickPoster = callback;
     this.getElement().querySelector('.film-card__poster').addEventListener('click', this._clickHandler);
     this.getElement().querySelector('.film-card__title').addEventListener('click', this._clickHandler);
     this.getElement().querySelector('.film-card__comments').addEventListener('click', this._clickHandler);
+  }
+
+  setWatchlistClickHandler(callback) {
+    this._callback.clickWatchlist = callback;
+    this.getElement().querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this._clickWatchlistClickHandler);
+  }
+
+  setWatchedClickHandler(callback) {
+    this._callback.clickWatched = callback;
+    this.getElement().querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this._clickWatchedClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.clickFavorite = callback;
+    this.getElement().querySelector('.film-card__controls-item--favorite').addEventListener('click', this._clickFavoriteClickHandler);
   }
 }
