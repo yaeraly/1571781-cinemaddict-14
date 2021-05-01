@@ -1,5 +1,6 @@
 import AbstractView from '../../abstract.js';
 
+
 const createNewCommentTemplate = () => {
   return `<div class="film-details__new-comment">
       <div class="film-details__add-emoji-label">
@@ -35,7 +36,24 @@ const createNewCommentTemplate = () => {
 };
 
 export default class NewComment extends AbstractView {
+  constructor() {
+    super();
+    this._data = NewComment.parseMovieToData();
+
+    this._clickSmileClickHandler     = this._clickSmileClickHandler.bind(this);
+    this._clickSleepingClickHandler  = this._clickSleepingClickHandler.bind(this);
+    this._clickPukeClickHandler      = this._clickPukeClickHandler.bind(this);
+    this._clickAngryClickHandler     = this._clickAngryClickHandler.bind(this);
+
+    this.getElement().querySelector('label[for=emoji-smile]').addEventListener('click', this._clickSmileClickHandler);
+    this.getElement().querySelector('label[for=emoji-sleeping]').addEventListener('click', this._clickSleepingClickHandler);
+    this.getElement().querySelector('label[for=emoji-puke]').addEventListener('click', this._clickPukeClickHandler);
+    this.getElement().querySelector('label[for=emoji-angry]').addEventListener('click', this._clickAngryClickHandler);
+  }
+
   getTemplate() {
     return createNewCommentTemplate();
   }
+
+
 }

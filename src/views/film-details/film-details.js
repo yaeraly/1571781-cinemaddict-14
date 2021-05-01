@@ -1,17 +1,15 @@
 import dayjs from 'dayjs';
 
 import CommentView from './initial/comments.js';
-import NewCommentView from './initial/new-comment.js';
 
 import AbstractView from '../abstract.js';
 
 const createGenresTemplate = (genres) => {
-  return genres.map((genre) => `
-    <span class="film-details__genre">${genre}</span>
-    `).join('');
+  return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('');
 };
 
-const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
+
+const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion = 'smile', isSmileChecked, isSleepingChecked, isPukeChecked, isAnglryChecked }) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
   const { date, release_country } = release;
   const { watchlist, already_watched, favorite } = user_details;
@@ -29,7 +27,6 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
   const favoriteClassName   = favorite ? 'film-details__control-label--favorite' : '';
 
   const commentsTemplate    = new CommentView(comments).getTemplate();
-  const newCommentTemplate  = new NewCommentView().getTemplate();
 
 
   return `<section class="film-details">
@@ -111,7 +108,38 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${ numOfComments }</span></h3>
             ${ commentsTemplate }
-            ${ newCommentTemplate }
+
+            <div class="film-details__new-comment">
+              <div class="film-details__add-emoji-label">
+                <img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
+              </div>
+
+              <label class="film-details__comment-label">
+                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">Great movie!</textarea>
+              </label>
+
+              <div class="film-details__emoji-list">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${isSmileChecked ? 'checked' : ''}>
+                <label class="film-details__emoji-label" for="emoji-smile">
+                  <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+                </label>
+
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${isSleepingChecked ? 'checked' : ''}>
+                <label class="film-details__emoji-label" for="emoji-sleeping">
+                  <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+                </label>
+
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${isPukeChecked ? 'checked' : ''}>
+                <label class="film-details__emoji-label" for="emoji-puke">
+                  <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+                </label>
+
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${isAnglryChecked ? 'checked' : ''}>
+                <label class="film-details__emoji-label" for="emoji-angry">
+                  <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+                </label>
+              </div>
+            </div>
           </section>
         </div>
       </form>
@@ -121,27 +149,42 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
 export default class FilmDetail extends AbstractView {
   constructor(film) {
     super();
-    this._film = film;
+    this._data = FilmDetail.parseMovieToData(film);
+
     this._clickHandler                = this._clickHandler.bind(this);
     this._clickWatchlistClickHandler  = this._clickWatchlistClickHandler.bind(this);
     this._clickWatchedClickHandler    = this._clickWatchedClickHandler.bind(this);
     this._clickFavoriteClickHandler   = this._clickFavoriteClickHandler.bind(this);
     this._onEscKeyDown                = this._onEscKeyDown.bind(this);
+
+
+    this._clickSmileClickHandler     = this._clickSmileClickHandler.bind(this);
+    this._clickSleepingClickHandler  = this._clickSleepingClickHandler.bind(this);
+    this._clickPukeClickHandler      = this._clickPukeClickHandler.bind(this);
+    this._clickAngryClickHandler     = this._clickAngryClickHandler.bind(this);
+
+
+    this.getElement().querySelector('label[for=emoji-smile]').addEventListener('click', this._clickSmileClickHandler);
+    this.getElement().querySelector('label[for=emoji-sleeping]').addEventListener('click', this._clickSleepingClickHandler);
+    this.getElement().querySelector('label[for=emoji-puke]').addEventListener('click', this._clickPukeClickHandler);
+    this.getElement().querySelector('label[for=emoji-angry]').addEventListener('click', this._clickAngryClickHandler);
   }
 
   getTemplate() {
-    return createFilmDetailTemplate(this._film);
+    return createFilmDetailTemplate(this._data);
   }
 
   _clickHandler(evt) {
     evt.preventDefault();
     this._callback.clickPoster();
+    FilmDetail.parseDataToMovie(this._data);
   }
 
   _onEscKeyDown(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this._callback.clickPoster();
+      FilmDetail.parseDataToMovie(this._data);
     }
   }
 
@@ -184,5 +227,124 @@ export default class FilmDetail extends AbstractView {
     this.getElement().querySelector('#watched').removeEventListener('click', this._clickWatchedClickHandler);
     this.getElement().querySelector('#favorite').removeEventListener('click', this._clickFavoriteClickHandler);
     document.removeEventListener('keydown', this._onEscKeyDown);
+  }
+
+  _clickSmileClickHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      emotion: 'smile',
+      isSmileChecked: true,
+      isSleepingChecked: false,
+      isPukeChecked: false,
+      isAnglryChecked: false,
+    });
+    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
+  }
+
+  _clickSleepingClickHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      emotion: 'sleeping',
+      isSmileChecked: false,
+      isSleepingChecked: true,
+      isPukeChecked: false,
+      isAnglryChecked: false,
+    });
+    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
+
+  }
+
+  _clickPukeClickHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      emotion: 'puke',
+      isSmileChecked: false,
+      isSleepingChecked: false,
+      isPukeChecked: true,
+      isAnglryChecked: false,
+    });
+    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
+
+  }
+
+  _clickAngryClickHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      emotion: 'angry',
+      isSmileChecked: false,
+      isSleepingChecked: false,
+      isPukeChecked: false,
+      isAnglryChecked: true,
+    });
+    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
+  }
+
+  updateData(update) {
+    if (!update) {
+      return;
+    }
+
+    this._data = Object.assign(
+      {},
+      this._data,
+      update,
+    );
+
+    this.updateElement();
+  }
+
+  updateElement() {
+    const prevElement = this.getElement();
+    const parent = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parent.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._clickHandler);
+    this.getElement().querySelector('#watchlist').addEventListener('click', this._clickWatchlistClickHandler);
+    this.getElement().querySelector('#watched').addEventListener('click', this._clickWatchedClickHandler);
+    this.getElement().querySelector('#favorite').addEventListener('click', this._clickFavoriteClickHandler);
+    document.addEventListener('keydown', this._onEscKeyDown);
+
+    this.getElement().querySelector('label[for=emoji-smile]').addEventListener('click', this._clickSmileClickHandler);
+    this.getElement().querySelector('label[for=emoji-sleeping]').addEventListener('click', this._clickSleepingClickHandler);
+    this.getElement().querySelector('label[for=emoji-puke]').addEventListener('click', this._clickPukeClickHandler);
+    this.getElement().querySelector('label[for=emoji-angry]').addEventListener('click', this._clickAngryClickHandler);
+  }
+
+  static parseMovieToData(movie) {
+    return Object.assign(
+      {},
+      movie,
+      {
+        emotion: this._emotion,
+        isSmileChecked: true,
+        isSleepingChecked: false,
+        isPukeChecked: false,
+        isAnglryChecked: false,
+      },
+    );
+  }
+
+  static parseDataToMovie(data) {
+    data = Object.assign({}, data);
+
+    delete data.emotion;
+    delete data.isSmileChecked;
+    delete data.isSleepingChecked;
+    delete data.isPukeChecked;
+    delete data.isAnglryChecked;
+
+    return data;
   }
 }
