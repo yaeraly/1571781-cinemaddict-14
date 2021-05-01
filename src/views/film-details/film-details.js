@@ -159,15 +159,9 @@ export default class FilmDetail extends AbstractView {
 
 
     this._clickSmileClickHandler     = this._clickSmileClickHandler.bind(this);
-    this._clickSleepingClickHandler  = this._clickSleepingClickHandler.bind(this);
-    this._clickPukeClickHandler      = this._clickPukeClickHandler.bind(this);
-    this._clickAngryClickHandler     = this._clickAngryClickHandler.bind(this);
 
 
-    this.getElement().querySelector('label[for=emoji-smile]').addEventListener('click', this._clickSmileClickHandler);
-    this.getElement().querySelector('label[for=emoji-sleeping]').addEventListener('click', this._clickSleepingClickHandler);
-    this.getElement().querySelector('label[for=emoji-puke]').addEventListener('click', this._clickPukeClickHandler);
-    this.getElement().querySelector('label[for=emoji-angry]').addEventListener('click', this._clickAngryClickHandler);
+    this._setInnerHandlers();
   }
 
   getTemplate() {
@@ -232,50 +226,9 @@ export default class FilmDetail extends AbstractView {
   _clickSmileClickHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      emotion: 'smile',
-      isSmileChecked: true,
-      isSleepingChecked: false,
-      isPukeChecked: false,
-      isAnglryChecked: false,
+      emotion: evt.target.value,
     });
-    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
-  }
 
-  _clickSleepingClickHandler(evt) {
-    evt.preventDefault();
-    this.updateData({
-      emotion: 'sleeping',
-      isSmileChecked: false,
-      isSleepingChecked: true,
-      isPukeChecked: false,
-      isAnglryChecked: false,
-    });
-    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
-
-  }
-
-  _clickPukeClickHandler(evt) {
-    evt.preventDefault();
-    this.updateData({
-      emotion: 'puke',
-      isSmileChecked: false,
-      isSleepingChecked: false,
-      isPukeChecked: true,
-      isAnglryChecked: false,
-    });
-    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
-
-  }
-
-  _clickAngryClickHandler(evt) {
-    evt.preventDefault();
-    this.updateData({
-      emotion: 'angry',
-      isSmileChecked: false,
-      isSleepingChecked: false,
-      isPukeChecked: false,
-      isAnglryChecked: true,
-    });
     this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
   }
 
@@ -316,10 +269,7 @@ export default class FilmDetail extends AbstractView {
     this.getElement().querySelector('#favorite').addEventListener('click', this._clickFavoriteClickHandler);
     document.addEventListener('keydown', this._onEscKeyDown);
 
-    this.getElement().querySelector('label[for=emoji-smile]').addEventListener('click', this._clickSmileClickHandler);
-    this.getElement().querySelector('label[for=emoji-sleeping]').addEventListener('click', this._clickSleepingClickHandler);
-    this.getElement().querySelector('label[for=emoji-puke]').addEventListener('click', this._clickPukeClickHandler);
-    this.getElement().querySelector('label[for=emoji-angry]').addEventListener('click', this._clickAngryClickHandler);
+    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._clickSmileClickHandler);
   }
 
   static parseMovieToData(movie) {
@@ -328,10 +278,6 @@ export default class FilmDetail extends AbstractView {
       movie,
       {
         emotion: this._emotion,
-        isSmileChecked: true,
-        isSleepingChecked: false,
-        isPukeChecked: false,
-        isAnglryChecked: false,
       },
     );
   }
@@ -340,10 +286,6 @@ export default class FilmDetail extends AbstractView {
     data = Object.assign({}, data);
 
     delete data.emotion;
-    delete data.isSmileChecked;
-    delete data.isSleepingChecked;
-    delete data.isPukeChecked;
-    delete data.isAnglryChecked;
 
     return data;
   }
