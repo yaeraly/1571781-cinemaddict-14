@@ -1,15 +1,29 @@
 import dayjs from 'dayjs';
 
 import CommentView from './initial/comments.js';
+import SmartView from '../smart.js';
 
-import AbstractView from '../abstract.js';
+
+const EMOTIONS = [
+  'smile',
+  'sleeping',
+  'puke',
+  'angry',
+];
 
 const createGenresTemplate = (genres) => {
   return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('');
 };
 
+const createEmotionsTemplate = (currentEmotion) => {
+  return EMOTIONS.map((emotion) => `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${currentEmotion === emotion ? 'checked' : ''}>
+  <label class="film-details__emoji-label" for="emoji-${emotion}">
+    <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+  </label>`).join('');
+};
 
-const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion = 'smile', isSmileChecked, isSleepingChecked, isPukeChecked, isAnglryChecked }) => {
+
+const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion = 'smile' }) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
   const { date, release_country } = release;
   const { watchlist, already_watched, favorite } = user_details;
@@ -27,6 +41,8 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion =
   const favoriteClassName   = favorite ? 'film-details__control-label--favorite' : '';
 
   const commentsTemplate    = new CommentView(comments).getTemplate();
+
+  const emotionsTemplate = createEmotionsTemplate(emotion);
 
 
   return `<section class="film-details">
@@ -119,25 +135,7 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion =
               </label>
 
               <div class="film-details__emoji-list">
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${isSmileChecked ? 'checked' : ''}>
-                <label class="film-details__emoji-label" for="emoji-smile">
-                  <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${isSleepingChecked ? 'checked' : ''}>
-                <label class="film-details__emoji-label" for="emoji-sleeping">
-                  <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${isPukeChecked ? 'checked' : ''}>
-                <label class="film-details__emoji-label" for="emoji-puke">
-                  <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${isAnglryChecked ? 'checked' : ''}>
-                <label class="film-details__emoji-label" for="emoji-angry">
-                  <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-                </label>
+                ${emotionsTemplate}
               </div>
             </div>
           </section>
@@ -146,7 +144,7 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion =
     </section>`;
 };
 
-export default class FilmDetail extends AbstractView {
+export default class FilmDetail extends SmartView {
   constructor(film) {
     super();
     this._data = FilmDetail.parseMovieToData(film);
@@ -230,32 +228,6 @@ export default class FilmDetail extends AbstractView {
     });
 
     this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
-  }
-
-  updateData(update) {
-    if (!update) {
-      return;
-    }
-
-    this._data = Object.assign(
-      {},
-      this._data,
-      update,
-    );
-
-    this.updateElement();
-  }
-
-  updateElement() {
-    const prevElement = this.getElement();
-    const parent = prevElement.parentElement;
-    this.removeElement();
-
-    const newElement = this.getElement();
-
-    parent.replaceChild(newElement, prevElement);
-
-    this.restoreHandlers();
   }
 
   restoreHandlers() {
