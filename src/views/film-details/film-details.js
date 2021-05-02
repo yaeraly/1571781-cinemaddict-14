@@ -1,17 +1,29 @@
 import dayjs from 'dayjs';
 
 import CommentView from './initial/comments.js';
-import NewCommentView from './initial/new-comment.js';
+import SmartView from '../smart.js';
 
-import AbstractView from '../abstract.js';
+
+const EMOTIONS = [
+  'smile',
+  'sleeping',
+  'puke',
+  'angry',
+];
 
 const createGenresTemplate = (genres) => {
-  return genres.map((genre) => `
-    <span class="film-details__genre">${genre}</span>
-    `).join('');
+  return genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('');
 };
 
-const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
+const createEmotionsTemplate = (currentEmotion) => {
+  return EMOTIONS.map((emotion) => `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${currentEmotion === emotion ? 'checked' : ''}>
+  <label class="film-details__emoji-label" for="emoji-${emotion}">
+    <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+  </label>`).join('');
+};
+
+
+const createFilmDetailTemplate = ({ comments, film_info, user_details, emotion = 'smile' }) => {
   const { title, alternative_title, total_rating, poster, age_rating, director, writers, actors, release, runtime, genre, description } = film_info;
   const { date, release_country } = release;
   const { watchlist, already_watched, favorite } = user_details;
@@ -29,7 +41,8 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
   const favoriteClassName   = favorite ? 'film-details__control-label--favorite' : '';
 
   const commentsTemplate    = new CommentView(comments).getTemplate();
-  const newCommentTemplate  = new NewCommentView().getTemplate();
+
+  const emotionsTemplate = createEmotionsTemplate(emotion);
 
 
   return `<section class="film-details">
@@ -111,37 +124,59 @@ const createFilmDetailTemplate = ({ comments, film_info, user_details }) => {
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${ numOfComments }</span></h3>
             ${ commentsTemplate }
-            ${ newCommentTemplate }
+
+            <div class="film-details__new-comment">
+              <div class="film-details__add-emoji-label">
+                <img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
+              </div>
+
+              <label class="film-details__comment-label">
+                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">Great movie!</textarea>
+              </label>
+
+              <div class="film-details__emoji-list">
+                ${emotionsTemplate}
+              </div>
+            </div>
           </section>
         </div>
       </form>
     </section>`;
 };
 
-export default class FilmDetail extends AbstractView {
+export default class FilmDetail extends SmartView {
   constructor(film) {
     super();
-    this._film = film;
+    this._data = FilmDetail.parseMovieToData(film);
+
     this._clickHandler                = this._clickHandler.bind(this);
     this._clickWatchlistClickHandler  = this._clickWatchlistClickHandler.bind(this);
     this._clickWatchedClickHandler    = this._clickWatchedClickHandler.bind(this);
     this._clickFavoriteClickHandler   = this._clickFavoriteClickHandler.bind(this);
     this._onEscKeyDown                = this._onEscKeyDown.bind(this);
+
+
+    this._clickSmileClickHandler     = this._clickSmileClickHandler.bind(this);
+
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createFilmDetailTemplate(this._film);
+    return createFilmDetailTemplate(this._data);
   }
 
   _clickHandler(evt) {
     evt.preventDefault();
     this._callback.clickPoster();
+    FilmDetail.parseDataToMovie(this._data);
   }
 
   _onEscKeyDown(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this._callback.clickPoster();
+      FilmDetail.parseDataToMovie(this._data);
     }
   }
 
@@ -184,5 +219,46 @@ export default class FilmDetail extends AbstractView {
     this.getElement().querySelector('#watched').removeEventListener('click', this._clickWatchedClickHandler);
     this.getElement().querySelector('#favorite').removeEventListener('click', this._clickFavoriteClickHandler);
     document.removeEventListener('keydown', this._onEscKeyDown);
+  }
+
+  _clickSmileClickHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      emotion: evt.target.value,
+    });
+
+    this.getElement().querySelector('.film-details__add-emoji-label').scrollIntoView();
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._clickHandler);
+    this.getElement().querySelector('#watchlist').addEventListener('click', this._clickWatchlistClickHandler);
+    this.getElement().querySelector('#watched').addEventListener('click', this._clickWatchedClickHandler);
+    this.getElement().querySelector('#favorite').addEventListener('click', this._clickFavoriteClickHandler);
+    document.addEventListener('keydown', this._onEscKeyDown);
+
+    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._clickSmileClickHandler);
+  }
+
+  static parseMovieToData(movie) {
+    return Object.assign(
+      {},
+      movie,
+      {
+        emotion: this._emotion,
+      },
+    );
+  }
+
+  static parseDataToMovie(data) {
+    data = Object.assign({}, data);
+
+    delete data.emotion;
+
+    return data;
   }
 }
